@@ -137,10 +137,6 @@ app.use("/api/wardrobe", wardrobeRoute);
 //     }
 // });
 
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "landing.html"));
-});
-
 app.get("/api/closet/:weather", (req, res) => {
     const weather = req.params.weather.toLowerCase();
     const dirPath = path.join(__dirname, "public", "closet", `${weather}_collection`);
