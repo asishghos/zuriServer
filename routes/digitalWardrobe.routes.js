@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { addGarmentToDigitalWardrobe, getMyWardrobe, updateGarment, deleteGarment, getTags, getGarmentsByCategory, getGarmentsByFabric, getGarmentsByFabric } from "../controllers/digitalWardrobe.controllers.js";
+import { addGarmentToDigitalWardrobe, getMyWardrobe, updateGarment, deleteGarment, getTags, getGarmentsByCategory, getGarmentsByFabric, getGarmentsByOccasion } from "../controllers/digitalWardrobe.controllers.js";
 import { verifyJWT } from "../middleware/auth.middleware.js";
 
 const router = Router();

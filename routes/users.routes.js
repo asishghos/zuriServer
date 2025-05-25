@@ -1,4 +1,4 @@
-import { verifyJWT } from "../Outfit-Styler/middleware/auth.middleware.js";
+import { verifyJWT } from "../middleware/auth.middleware.js";
 import { Router } from "express";
 import { registerUser, loginUser, logoutUser, getUserProfile, changeUserPassword, updateUserProfile, refreshAccessToken } from "../controllers/users.controllers.js";
 

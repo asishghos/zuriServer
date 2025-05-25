@@ -8,13 +8,14 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
 import { connectDB } from "./db/connectDB.js";
-import { PythonShell } from "python-shell";
-
-
+import analyzeRoutes from "./routes/analyze.routes.js";
+import productRoutes from "./routes/products.routes.js";
+import imageRoutes from "./routes/imagegenerate.routes.js";
+import { cleanupCache } from "./utils/cache.js";
 import eventRoute from "./routes/events.routes.js";
 import userRoute from "./routes/users.routes.js";
 import userBodyInfoRoute from "./routes/userBodyInfo.routes.js";
-import wardrobeRoute from "./routes/digitalWardrobe.controllers.js";
+import wardrobeRoute from "./routes/digitalWardrobe.routes.js";
 
 
 dotenv.config();
@@ -39,12 +40,20 @@ const __dirname = path.dirname(__filename);
 
 app.use(express.static("public"));
 
+app.get("/", (req, res) => {
+  res.send("Welcome to the Fashion AI server.");
+});
 
 // all routes
+app.use("/api/analyze", analyzeRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/image", imageRoutes);
 app.use("/api/users", userRoute);
 app.use("/api/events", eventRoute);
 app.use("/api/userBodyInfo", userBodyInfoRoute);
 app.use("/api/wardrobe", wardrobeRoute);
+
+setInterval(cleanupCache, 15 * 60 * 1000);
 
 // app.post('/api/process-garment', upload.single('image'), async (req, res) => {
 //     const category = req.body.category;
