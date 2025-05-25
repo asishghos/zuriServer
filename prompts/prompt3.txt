@@ -1,0 +1,21 @@
+Approach this like a professional fashion stylist creating 3 distinct editorials based on one key garment.
+
+Generate **three visually distinct complete outfits** in a flatlay/editorial style with modern Pinterest fashion aesthetic, using the uploaded ${clothingType} as the central piece for all three looks.
+
+CRITICAL REQUIREMENTS:
+1. The uploaded ${clothingType} item MUST appear EXACTLY as provided in all three images - do not alter its color, shape, pattern, style, size, or any visual characteristics.
+2. Create three COMPLETELY DIFFERENT outfit combinations around this ${clothingType} for the "${occasion}" occasion.
+
+For each complete outfit:
+- If user uploaded topwear: Add different bottoms, shoes, and accessories for each look
+- If user uploaded bottomwear: Add different tops, shoes, and accessories for each look
+- Include appropriate accessories that complement each unique styling direction (jewelry, bags, shoes, belts, etc.)
+
+Visual presentation requirements:
+- Flatlay/editorial composition with items arranged professionally
+- Clean, neutral background with soft natural lighting
+- No human figures or mannequins
+- Photorealistic, high-quality imagery with professional styling
+- Maintain consistent size/scale of the uploaded item across all three outfits
+
+The goal is to showcase styling versatility by creating three distinct aesthetic directions using the EXACT SAME uploaded garment. Think of these as three separate magazine editorials featuring the same piece styled in completely different ways.

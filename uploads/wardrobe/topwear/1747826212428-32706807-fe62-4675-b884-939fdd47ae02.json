@@ -1,0 +1,25 @@
+{
+  "category": "topwear",
+  "itemCategories": [
+    "jacket"
+  ],
+  "fabrics": [
+    "tweed"
+  ],
+  "occasions": [
+    "casual"
+  ],
+  "seasons": [
+    "fall",
+    "winter",
+    "spring"
+  ],
+  "colors": [
+    "black",
+    "red",
+    "blue",
+    "white"
+  ],
+  "pattern": "floral",
+  "style": "casual"
+}

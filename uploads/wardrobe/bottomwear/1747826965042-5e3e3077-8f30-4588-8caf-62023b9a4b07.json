@@ -1,0 +1,36 @@
+{
+  "category": "both",
+  "itemCategories": [
+    "dress"
+  ],
+  "fabrics": {
+    "topwear": [
+      "cotton blend"
+    ],
+    "bottomwear": [
+      "cotton blend"
+    ]
+  },
+  "occasions": {
+    "topwear": [
+      "casual"
+    ],
+    "bottomwear": [
+      "casual"
+    ]
+  },
+  "seasons": [
+    "summer",
+    "spring"
+  ],
+  "colors": {
+    "topwear": [
+      "white"
+    ],
+    "bottomwear": [
+      "white"
+    ]
+  },
+  "pattern": "solid",
+  "style": "bodycon"
+}

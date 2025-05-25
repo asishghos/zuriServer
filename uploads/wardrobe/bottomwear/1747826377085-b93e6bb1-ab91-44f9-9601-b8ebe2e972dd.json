@@ -1,0 +1,45 @@
+{
+  "category": "both",
+  "itemCategories": {
+    "topwear": [
+      "top",
+      "blouse"
+    ],
+    "bottomwear": [
+      "pants",
+      "dress pants"
+    ]
+  },
+  "fabrics": {
+    "topwear": [
+      "jersey"
+    ],
+    "bottomwear": [
+      "cotton blend"
+    ]
+  },
+  "occasions": {
+    "topwear": [
+      "casual"
+    ],
+    "bottomwear": [
+      "casual",
+      "work"
+    ]
+  },
+  "seasons": [
+    "fall",
+    "winter",
+    "spring"
+  ],
+  "colors": {
+    "topwear": [
+      "brown"
+    ],
+    "bottomwear": [
+      "beige"
+    ]
+  },
+  "pattern": "solid",
+  "style": "casual"
+}
