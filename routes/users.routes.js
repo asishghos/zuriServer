@@ -13,10 +13,10 @@ router.post("/logout", verifyJWT, logoutUser);
 // Get user profile
 router.get("/profile", verifyJWT, getUserProfile);
 // Change user password
-router.patch("/change-password", verifyJWT, changeUserPassword);
+router.patch("/change_password", verifyJWT, changeUserPassword);
 // Update user profile
-router.patch("/update-profile", verifyJWT, updateUserProfile);
+router.patch("/update_profile", verifyJWT, updateUserProfile);
 // Refresh access token
-router.post("/refresh-token", refreshAccessToken);
+router.post("/refresh_token", refreshAccessToken);
 
 export default router;

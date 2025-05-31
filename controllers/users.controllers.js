@@ -29,12 +29,12 @@ const generateAccessAndRefreshTokens = async (userId) => {
 export const registerUser = async (req, res) => {
 
     //getting user data from req
-    const { fullName, email, username, phone, password } = req.body  // form-data, json-data is accessed from req.body
+    const { fullName, email,  password } = req.body  // form-data, json-data is accessed from req.body
 
 
     //validating if any filed is empty
     if (
-        [fullName, email, username, phone, password].some((field) =>
+        [fullName, email,  password].some((field) =>
             field?.trim() === "")
     ) {
         return res.status(400).json({ msg: "All fields are required" })
@@ -43,7 +43,7 @@ export const registerUser = async (req, res) => {
 
     //checking if user already exits
     const existedUser = await User.findOne({
-        $or: [{ username }, { email }, { phone }]   // checking if any of these fields are already in the database
+        $or: [{ email }]   // checking if any of these fields are already in the database
     })
 
     if (existedUser) {
@@ -55,8 +55,6 @@ export const registerUser = async (req, res) => {
     const user = await User.create({
         fullName,
         email,
-        username: username.toLowerCase(),
-        phone,
         password
     })
 
@@ -77,14 +75,14 @@ export const registerUser = async (req, res) => {
 
 // login user
 export const loginUser = async (req, res) => {
-    const { email, phone, password } = req.body;
+    const { email, password } = req.body;
 
-    if (!email || !phone || !password) {
+    if (!email || !password) {
         return res.status(400).json({ msg: "All fields are required" })
     }
 
     const user = await User.findOne({
-        $or: [{ email }, { phone }]   // checking if any of these fields are already in the database
+        $or: [{ email }]   // checking if any of these fields are already in the database
     });
 
     if (!user) {
@@ -99,7 +97,7 @@ export const loginUser = async (req, res) => {
     const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
 
     const loggedInUser = await User.findById(user._id).select(
-        "-passwrd -refreshToken"   // don't pass password and refreshToken from response
+        "-password -refreshToken"   // don't pass password and refreshToken from response
     )
 
     const options = {
@@ -142,7 +140,7 @@ export const refreshAccessToken = async (req, res) => {
             return res.status(400).json({ msg: "Refresh token is required" });
         }
         const decodedToken = jwt.verify(incomingRefreshToken, process.env.JWT_REFRESH_SECRET);
-        const user = await user.findById(decodedToken._id);
+        const user = await User.findById(decodedToken._id);
 
         if (!user) {
             return res.status(404).json({ msg: "User not found" });
@@ -206,16 +204,14 @@ export const updateUserProfile = async (req, res) => {
         if(!user) {
             return res.status(404).json({ msg: "User not found while updating profile details" });
         }
-        const { fullName, email, username, phone } = req.body;
+        const { fullName, email, } = req.body;
 
-        if (!fullName || !email || !username || !phone) {
+        if (!fullName || !email ){
             return res.status(400).json({ msg: "All fields are required" });
         }
 
         user.fullName = fullName;
         user.email = email;
-        user.username = username.toLowerCase();
-        user.phone = phone;
 
         await user.save({ validateBeforeSave: true });
         return res.status(200).json({ msg: "User profile updated successfully", data: user });
