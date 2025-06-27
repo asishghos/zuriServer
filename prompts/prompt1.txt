@@ -51,11 +51,7 @@ hip_to_waist_ratio = hip_width / waist_distance
 
 IMPORTANT: Always classify as one of these five types. If calculations are inconclusive, select the closest match rather than returning "Undefined".
 
-## 2. Gender Identification
-
-Analyze the image to detect gender, with "Female" being the most common result.
-
-## 3. Skin Tone Analysis
+## 2. Skin Tone Analysis
 
 ### Handling Missing Data
 If skin tone data is not provided:
@@ -75,72 +71,14 @@ If skin tone data is not provided:
 | Fitzpatrick 3-4, Monk 4-7 | Neutral | Mixed undertones or balanced |
 | Fitzpatrick 5-6, Monk 8-10 | Warm | Yellow, golden, or olive undertones |
 
-### Skin Tone-Specific Color Recommendations
-
-#### Warm Undertones (Fitzpatrick 5-6, Monk 8-10)
-- **Bright Colors**: Coral, burnt orange, golden yellow, tomato red, warm turquoise
-- **Light Colors**: Peach, ivory, light camel, champagne, warm beige
-- **Neutral Colors**: Olive green, Camel, Chocolate brown, Terracotta, Warm taupe
-
-
-#### Cool Undertones (Fitzpatrick 1-2, Monk 1-3)
-- **Bright Colors**: True blue, magenta, ruby red, emerald green, royal purple
-- **Light Colors**: Lavender, powder blue, pink rose, mint green, lilac
-- **Neutral Colors**: Navy, Cool gray, Charcoal, Stone, Soft taupe
-
-
-#### Neutral Undertones (Fitzpatrick 3-4, Monk 4-7)
-- **Bright Colors**: Teal, raspberry, true red, medium blue, jade green
-- **Light Colors**: Soft white, light taupe, rose pink, powder green, sky blue
-- **Neutral Colors**: Medium gray, Sage green, Taupe, Greige, Mushroom
-
-**Important Rules for Color Recommendations**:
-1. Never provide duplicate colors across the bright, light, and neutral categories
-2. Always ensure recommended colors genuinely complement the detected skin tone
-3. Include exact hex codes for each color recommendation
-4. Prioritize colors known to enhance the specific undertone category
-5. Consider cultural context and appropriateness of color recommendations
-
 ## 4. Output Format
 
 **Every thing you have to return in String**
-
 Provide a detailed JSON response with the following structure:
-
 ```json
 {
-  "bodyShape": {
-    "classification": "[Hourglass/Pear/Inverted Triangle/Rectangle/Apple]",
-  },
-  "gender": {
-    "classification": "Female/Male",
-  },
-  "skinTone": {
-    "toneCategory": "[Warm/Cool/Neutral]",
-    "recommendedColorPalettes": {
-      "bright": {
-        "colors": [
-          {"name": "color1", "hexCode": "#000000"},
-          {"name": "color2", "hexCode": "#000000"},
-          {"name": "color3", "hexCode": "#000000"},
-        ]
-      },
-      "light": {
-        "colors": [
-          {"name": "color1", "hexCode": "#000000"},
-          {"name": "color2", "hexCode": "#000000"},
-          {"name": "color3", "hexCode": "#000000"},
-        ]
-      },
-      "neutral": {
-        "colors": [
-          {"name": "color1", "hexCode": "#000000"},
-          {"name": "color2", "hexCode": "#000000"},
-          {"name": "color3", "hexCode": "#000000"},
-        ]
-      }
-    },
-  }
+  "bodyShape": "[hourglass/ apple/ pear/ rectangle/ invertedTriangle]",
+  "skinTone": "[cool/ warm/ neutral]"
 }
 ```
 

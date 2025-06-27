@@ -1,17 +1,21 @@
 import { PythonShell } from "python-shell";
 import axios from "axios";
 import fs from "fs";
-import { encode } from "base64-arraybuffer";
-import { cache, CACHE_EXPIRATION } from "../utils/cache.js";
-import { getCacheKey, getFromCache, saveToCache } from "../utils/cache.js";
 
 const prototypePrompt1 = fs.readFileSync("prompts/prompt1.txt", "utf8");
-const prototypePrompt2 = fs.readFileSync("prompts/prompt2.txt", "utf8");
 
-const OPENAI_API_KEY = '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';
+// Use environment variable for API key
+const OPENAI_API_KEY =
+  process.env.OPENAI_API_KEY ||
+  "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";
 
 async function runPoseDetector(imagePath) {
   return new Promise((resolve, reject) => {
+    // Validate file exists
+    if (!fs.existsSync(imagePath)) {
+      return reject(new Error("Image file not found"));
+    }
+
     const imageBuffer = fs.readFileSync(imagePath);
     const base64Image = imageBuffer.toString("base64");
 
@@ -37,6 +41,11 @@ async function runPoseDetector(imagePath) {
 
 async function runToneDetector(imagePath, landmarkResponse) {
   return new Promise((resolve, reject) => {
+    // Validate file exists
+    if (!fs.existsSync(imagePath)) {
+      return reject(new Error("Image file not found"));
+    }
+
     const imageBuffer = fs.readFileSync(imagePath);
     const base64Image = imageBuffer.toString("base64");
 
@@ -79,7 +88,7 @@ async function getBodyShapeFromGPT(landmarkResponse, toneResponse, imagePath) {
           text: `Human Analysis Request
           ## Input Data Analysis
           I need a comprehensive analysis of the human subject using the following data:
-          ### 1. Pose Landmarks Data: ${JSON.stringify(landmarkResponse)}
+          ### 1. Pose Landmarks Data/ Body shape: ${JSON.stringify(landmarkResponse)}
           ### 2. Skin Tone Detection Results: ${JSON.stringify(toneResponse)}
           ${
             imagePath
@@ -102,60 +111,28 @@ async function getBodyShapeFromGPT(landmarkResponse, toneResponse, imagePath) {
     });
   }
 
-  const response = await axios.post(
-    "https://api.openai.com/v1/chat/completions",
-    {
-      model: "gpt-4-turbo",
-      messages: messages,
-      temperature: 0.3,
-      response_format: { type: "json_object" },
-    },
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
+  try {
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-4-turbo",
+        messages: messages,
+        temperature: 0.3,
+        response_format: { type: "json_object" },
       },
-    }
-  );
-
-  return JSON.parse(response.data.choices[0].message.content);
-}
-
-async function getOutfitSuggectionsFromGPT(
-  landmarkResponse,
-  toneResponse,
-  bodyShapeResult
-) {
-  const gptResponse = await axios.post(
-    "https://api.openai.com/v1/chat/completions",
-    {
-      model: "gpt-4-turbo",
-      messages: [
-        {
-          role: "system",
-          content: prototypePrompt2,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
         },
-        {
-          role: "user",
-          content: `Given the following inputs:
-          - Body Landmark Data: ${JSON.stringify(landmarkResponse)}
-          - Detect gender from the Image
-          - Overall Tone or Occasion: ${JSON.stringify(toneResponse)}
-          - Body Analysis in JSON: ${JSON.stringify(bodyShapeResult)}`,
-        },
-      ],
-      temperature: 0.3,
-      response_format: { type: "json_object" },
-    },
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-      },
-    }
-  );
+      }
+    );
 
-  return JSON.parse(gptResponse.data.choices[0].message.content);
+    return JSON.parse(response.data.choices[0].message.content);
+  } catch (error) {
+    console.error("OpenAI API error:", error.response?.data || error.message);
+    throw new Error("Failed to analyze body shape");
+  }
 }
 
 export const analyzeAuto = async (req, res) => {
@@ -166,89 +143,60 @@ export const analyzeAuto = async (req, res) => {
     const landmarkResponse = await runPoseDetector(imagePath);
     const toneResponse = await runToneDetector(imagePath, landmarkResponse);
 
-    const requestData = {
+    let bodyShapeResult = await getBodyShapeFromGPT(
       landmarkResponse,
       toneResponse,
-      hasImage: true,
-    };
-
-    const bodyShapeCacheKey = getCacheKey(requestData);
-    let bodyShapeResult = getFromCache(cache.bodyShapeAnalysis, bodyShapeCacheKey);
-    
-    if (!bodyShapeResult) {
-      bodyShapeResult = await getBodyShapeFromGPT(landmarkResponse, toneResponse, imagePath);
-      saveToCache(cache.bodyShapeAnalysis, bodyShapeCacheKey, bodyShapeResult);
-    }
-
-    const outfitRequestData = { ...requestData, bodyShapeResult };
-    const outfitCacheKey = getCacheKey(outfitRequestData);
-    let outfitSuggectionResult = getFromCache(cache.outfitSuggestions, outfitCacheKey);
-    
-    if (!outfitSuggectionResult) {
-      outfitSuggectionResult = await getOutfitSuggectionsFromGPT(
-        landmarkResponse,
-        toneResponse,
-        bodyShapeResult
-      );
-      saveToCache(cache.outfitSuggestions, outfitCacheKey, outfitSuggectionResult);
-    }
+      imagePath
+    );
 
     console.log("Tone response:", toneResponse);
     console.log("Keypoints response:", landmarkResponse);
     console.log("GPT response 1: ", bodyShapeResult);
-    console.log("GPT response 2: ", outfitSuggectionResult);
 
     res.json({
-      bodyShapeAnalysis: bodyShapeResult,
-      outfitSuggestions: outfitSuggectionResult,
+      bodyShapeResult,
     });
   } catch (error) {
+    console.error("analyzeAuto error:", error);
     res.status(500).json({ error: error.message || "Processing failed" });
   } finally {
-    if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
+    // Safe file cleanup
+    if (imagePath && fs.existsSync(imagePath)) {
+      try {
+        fs.unlinkSync(imagePath);
+      } catch (cleanupError) {
+        console.error("File cleanup error:", cleanupError);
+      }
+    }
   }
 };
 
 export const analyzeManual = async (req, res) => {
   try {
+    // Input validation
+    if (!req.body.body_shape || !req.body.skin_tone) {
+      return res
+        .status(400)
+        .json({ error: "Missing required fields: body_shape and skin_tone" });
+    }
+
     const requestData = {
       body_shape: req.body.body_shape,
-      gender: "female",
+      gender: req.body.gender || "female", // Allow gender to be specified
       skin_tone: req.body.skin_tone,
     };
 
-    const bodyShapeCacheKey = getCacheKey(requestData);
-    let bodyShapeResult = getFromCache(cache.bodyShapeAnalysis, bodyShapeCacheKey);
-    
-    if (!bodyShapeResult) {
-      bodyShapeResult = await getBodyShapeFromGPT(
-        JSON.stringify(requestData),
-        JSON.stringify({ skin_tone: requestData.skin_tone }),
-        null
-      );
-      saveToCache(cache.bodyShapeAnalysis, bodyShapeCacheKey, bodyShapeResult);
-    }
-
-    const outfitRequestData = { ...requestData, bodyShapeResult };
-    const outfitCacheKey = getCacheKey(outfitRequestData);
-    let outfitSuggectionResult = getFromCache(cache.outfitSuggestions, outfitCacheKey);
-    
-    if (!outfitSuggectionResult) {
-      outfitSuggectionResult = await getOutfitSuggectionsFromGPT(
-        JSON.stringify({ body_shape: requestData.body_shape }),
-        JSON.stringify({ skin_tone: requestData.skin_tone }),
-        bodyShapeResult
-      );
-      saveToCache(cache.outfitSuggestions, outfitCacheKey, outfitSuggectionResult);
-    }
-
-    console.log("GPT response 2: ", outfitSuggectionResult);
+    let bodyShapeResult = await getBodyShapeFromGPT(
+      JSON.stringify(requestData),
+      JSON.stringify(requestData),
+      null
+    );
 
     res.json({
-      bodyShapeAnalysis: bodyShapeResult,
-      outfitSuggestions: outfitSuggectionResult,
+      bodyShapeResult
     });
   } catch (error) {
+    console.error("analyzeManual error:", error);
     res.status(500).json({ error: error.message || "Processing failed" });
   }
 };
@@ -256,52 +204,45 @@ export const analyzeManual = async (req, res) => {
 export const analyzeHybrid = async (req, res) => {
   const imagePath = req.file?.path;
   if (!imagePath) return res.status(400).json({ error: "No image uploaded" });
-  
+      if (!req.body.body_shape) {
+      return res
+        .status(400)
+        .json({ error: "Missing required fields: body_shape" });
+    }
+
   try {
     const landmarkResponse = await runPoseDetector(imagePath);
     const toneResponse = await runToneDetector(imagePath, landmarkResponse);
 
     const requestData = {
       body_shape: req.body.body_shape,
-      gender: "female",
-      skin_tone: toneResponse,
-      landmarkResponse,
-      hasImage: true,
+      gender: req.body.gender || "female",
     };
 
-    const bodyShapeCacheKey = getCacheKey(requestData);
-    let bodyShapeResult = getFromCache(cache.bodyShapeAnalysis, bodyShapeCacheKey);
-    
-    if (!bodyShapeResult) {
-      bodyShapeResult = await getBodyShapeFromGPT(landmarkResponse, toneResponse, imagePath);
-      saveToCache(cache.bodyShapeAnalysis, bodyShapeCacheKey, bodyShapeResult);
-    }
-
-    const outfitRequestData = { ...requestData, bodyShapeResult };
-    const outfitCacheKey = getCacheKey(outfitRequestData);
-    let outfitSuggectionResult = getFromCache(cache.outfitSuggestions, outfitCacheKey);
-    
-    if (!outfitSuggectionResult) {
-      outfitSuggectionResult = await getOutfitSuggectionsFromGPT(
-        landmarkResponse,
-        toneResponse,
-        bodyShapeResult
-      );
-      saveToCache(cache.outfitSuggestions, outfitCacheKey, outfitSuggectionResult);
-    }
+    let bodyShapeResult = await getBodyShapeFromGPT(
+      requestData,
+      toneResponse,
+      imagePath
+    );
 
     console.log("Tone response:", toneResponse);
     console.log("Keypoints response:", landmarkResponse);
     console.log("GPT response 1: ", bodyShapeResult);
-    console.log("GPT response 2: ", outfitSuggectionResult);
 
     res.json({
-      bodyShapeAnalysis: bodyShapeResult,
-      outfitSuggestions: outfitSuggectionResult,
+      bodyShapeResult,
     });
   } catch (error) {
+    console.error("analyzeHybrid error:", error);
     res.status(500).json({ error: error.message || "Processing failed" });
   } finally {
-    if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
+    // Safe file cleanup
+    if (imagePath && fs.existsSync(imagePath)) {
+      try {
+        fs.unlinkSync(imagePath);
+      } catch (cleanupError) {
+        console.error("File cleanup error:", cleanupError);
+      }
+    }
   }
 };

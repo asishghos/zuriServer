@@ -204,7 +204,7 @@ export const updateUserProfile = async (req, res) => {
         if(!user) {
             return res.status(404).json({ msg: "User not found while updating profile details" });
         }
-        const { fullName, email, } = req.body;
+        const { fullName, email } = req.body;
 
         if (!fullName || !email ){
             return res.status(400).json({ msg: "All fields are required" });

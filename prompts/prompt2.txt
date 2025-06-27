@@ -62,16 +62,14 @@ When making recommendations, use only these predefined categories and items and 
 - **Layering Techniques:** Recommend strategic layering for dimension and balance
 
 ## Keyword Extraction
-After comprehensively analyzing the user's styling prompt, generate three concise 3-word keyword sets that describe the user's ideal outfit or item. The output should be returned in a text file. Use the following process:
-
-- **Be Search-Optimized: Create exactly three 3-word keyword phrases formatted as realistic fashion search queries (e.g., "black baggy jeans", "indigo silk saree", "linen shift dress").**
-- **User Vocabulary Friendly: Use language that matches how users might describe or search for items informally (e.g., "blue check shirt", "distressed mom jeans", "sleek ankle pants").**
+After comprehensively analyzing the user's styling prompt, generate three concise 3-word keyword sets that describe the user's ideal outfit or item. Use the following process:
+- **Be Search-Optimized: Create exactly three 3-word keyword phrases formatted as realistic fashion search queries (e.g., "baggy jeans", "silk saree", "shift dress").**
+- **User Vocabulary Friendly: Use language that matches how users might describe or search for items informally (e.g., "check shirt", "distressed mom jeans", "sleek ankle pants").**
 - Personalization Factors: Incorporate the user's:
   - Body Shape Take data from above details
   - Skin Tone Take data from above details
   - Recommended Color Palettes Take data from above details
-
-Use these to tailor the outfit types, fits, and color suggestions to what typically flatters or complements the user's look. Each keyword set should follow the format of "[color/pattern] [fit/style] [garment type]" (e.g., "emerald satin blouse", "tapered linen trousers").
+Use these to tailor the outfit types, fits suggestions to what typically flatters or complements the user's look. Each keyword set should follow the format of "[fit/style in one/two word] [garment type]" (e.g., "satin blouse", "tapered linen trousers").
 
 ## Output Format
 Provide personalized recommendations in structured JSON format:

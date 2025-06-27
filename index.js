@@ -58,7 +58,6 @@ app.use("/api/events", eventRoute);
 app.use("/api/userBodyInfo", userBodyInfoRoute);
 app.use("/api/wardrobe", wardrobeRoute);
 app.use("/api/checkimage", checkImageRoute);
-
 setInterval(cleanupCache, 15 * 60 * 1000);
 
 // app.post('/api/process-garment', upload.single('image'), async (req, res) => {
